@@ -25,7 +25,7 @@ public class AppUserDetails {
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "username")
     private AppUser user;
 
     @Column(name = "first_name")

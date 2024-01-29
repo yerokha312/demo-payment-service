@@ -14,12 +14,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "payment_order")
 @Data
-public class Order {
+public class PaymentOrder {
 
     @Id
-    @Column(name = "order_id")
+    @Column(name = "payment_order_id")
     private UUID orderId;
 
     @Column(name = "request_id")
