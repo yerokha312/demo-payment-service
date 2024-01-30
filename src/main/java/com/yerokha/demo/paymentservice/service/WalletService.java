@@ -3,12 +3,12 @@ package com.yerokha.demo.paymentservice.service;
 import com.yerokha.demo.paymentservice.entity.AppUserDetails;
 import com.yerokha.demo.paymentservice.entity.Wallet;
 import com.yerokha.demo.paymentservice.exception.EntityNotFoundException;
+import com.yerokha.demo.paymentservice.exception.InsufficientFundsException;
 import com.yerokha.demo.paymentservice.repository.WalletRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Objects;
-import java.util.Set;
 
 @Service
 public class WalletService {
@@ -21,38 +21,42 @@ public class WalletService {
         this.userService = userService;
     }
 
-    public void create(String username, String name) {
+    @Transactional
+    public Wallet create(String username) {
         AppUserDetails userDetails = userService.getByUsername(username);
         Wallet wallet = new Wallet();
-        wallet.setName(name);
         wallet.setBalance(BigDecimal.ZERO);
         wallet.setAppUserDetails(userDetails);
-        wallet.setActive(true);
-        walletRepository.save(wallet);
+        wallet.setUsername(username);
+        return walletRepository.save(wallet);
     }
 
-    public Set<Wallet> getAll(String username) {
-        return walletRepository.findByAppUserDetails_User_UsernameAndActive(username, true);
-    }
-
-    public Wallet getById(String username, Long walletId) {
-        return walletRepository.findByAppUserDetails_User_UsernameAndWalletId(username, walletId)
+    public Wallet getWallet(String username) {
+        return walletRepository.findWalletByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("Wallet not found"));
     }
 
-    public Wallet topUp(String username, Long walletId, BigDecimal amount) {
-        Wallet wallet = getById(username, walletId);
+    @Transactional
+    public Wallet topUp(String username, BigDecimal amount) {
+        Wallet wallet = getWallet(username);
         wallet.setBalance(wallet.getBalance().add(amount));
         walletRepository.save(wallet);
         return wallet;
     }
 
-    public void deactivate(String username, Long walletId) {
-        Wallet wallet = getById(username, walletId);
-        if (!Objects.equals(wallet.getBalance(), BigDecimal.ZERO)) {
-            throw new IllegalArgumentException("Wallet balance must be zero to delete");
+    @Transactional
+    public void debit(Wallet wallet, BigDecimal paymentAmount) {
+        if (wallet.getBalance().compareTo(paymentAmount) < 0) {
+            throw new InsufficientFundsException("Not enough money in the wallet");
         }
-        wallet.setActive(false);
+
+        wallet.setBalance(wallet.getBalance().subtract(paymentAmount));
+        walletRepository.save(wallet);
+    }
+
+    @Transactional
+    public void credit(Wallet wallet, BigDecimal paymentAmount) {
+        wallet.setBalance(wallet.getBalance().add(paymentAmount));
         walletRepository.save(wallet);
     }
 }

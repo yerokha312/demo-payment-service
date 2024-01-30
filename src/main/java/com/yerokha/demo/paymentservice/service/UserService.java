@@ -14,6 +14,6 @@ public class UserService {
     }
 
     public AppUserDetails getByUsername(String username) {
-        return appUserDetailsRepository.findByUser_Username(username);
+        return appUserDetailsRepository.findAppUserDetailsByAppUser_Username(username);
     }
 }

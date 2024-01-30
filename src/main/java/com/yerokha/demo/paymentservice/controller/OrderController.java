@@ -1,11 +1,11 @@
 package com.yerokha.demo.paymentservice.controller;
 
 import com.yerokha.demo.paymentservice.dto.OrderRequest;
+import com.yerokha.demo.paymentservice.dto.Receipt;
 import com.yerokha.demo.paymentservice.service.OrderService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +25,8 @@ public class OrderController {
         return orderService.create(request);
     }
 
-    @PutMapping("/pay/{walletId}/{orderId}")
-    public String pay(Authentication authentication, @PathVariable Long walletId, @PathVariable String orderId) {
-        return orderService.pay(authentication.getName(), walletId, orderId);
+    @PostMapping("/pay/{paymentOrderId}")
+    public Receipt pay(Authentication authentication, @PathVariable String paymentOrderId) {
+        return orderService.pay(authentication.getName(), paymentOrderId);
     }
 }

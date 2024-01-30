@@ -1,11 +1,14 @@
 package com.yerokha.demo.paymentservice.entity;
 
-import com.yerokha.demo.paymentservice.enums.OrderStatus;
+import com.yerokha.demo.paymentservice.enums.Status;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -25,8 +28,16 @@ public class PaymentOrder {
     @Column(name = "request_id")
     private Long requestId;
 
-    @Column(name = "requester")
-    private String requester;
+    @Column(name = "report_uri")
+    private String reportUri;
+
+    @ManyToOne
+    @JoinColumn(name = "user_details_id")
+    private AppUserDetails userDetails;
+
+    @OneToOne
+    @JoinColumn(name = "transaction_id")
+    private Transaction transaction;
 
     @Column(name = "date_time")
     private LocalDateTime dateTime;
@@ -36,5 +47,5 @@ public class PaymentOrder {
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    private Status status;
 }

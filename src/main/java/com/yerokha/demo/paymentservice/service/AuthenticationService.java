@@ -9,6 +9,7 @@ import com.yerokha.demo.paymentservice.repository.AppUserRepository;
 import com.yerokha.demo.paymentservice.repository.AuthorityRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthenticationService {
@@ -17,14 +18,17 @@ public class AuthenticationService {
     private final AppUserDetailsRepository appUserDetailsRepository;
     private final AuthorityRepository authorityRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WalletService walletService;
 
-    public AuthenticationService(AppUserRepository appUserRepository, AppUserDetailsRepository appUserDetailsRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder) {
+    public AuthenticationService(AppUserRepository appUserRepository, AppUserDetailsRepository appUserDetailsRepository, AuthorityRepository authorityRepository, PasswordEncoder passwordEncoder, WalletService walletService) {
         this.appUserRepository = appUserRepository;
         this.appUserDetailsRepository = appUserDetailsRepository;
         this.authorityRepository = authorityRepository;
         this.passwordEncoder = passwordEncoder;
+        this.walletService = walletService;
     }
 
+    @Transactional
     public void register(RegistrationRequest request) {
         AppUser user = new AppUser();
         user.setUsername(request.username());
@@ -43,8 +47,10 @@ public class AuthenticationService {
         details.setLastName(request.lastName());
         details.setEmail(request.email());
         details.setDob(request.dob());
-        details.setUser(user);
+        details.setAppUser(user);
+        details.setWallet(walletService.create(request.username()));
 
         appUserDetailsRepository.save(details);
+
     }
 }

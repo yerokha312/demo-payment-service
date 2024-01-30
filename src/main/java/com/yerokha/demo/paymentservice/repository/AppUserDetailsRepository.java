@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppUserDetailsRepository extends JpaRepository<AppUserDetails, Long> {
 
-    AppUserDetails findByUser_Username(String username);
+    AppUserDetails findAppUserDetailsByAppUser_Username(String username);
 }
